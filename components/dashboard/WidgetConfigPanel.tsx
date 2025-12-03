@@ -42,7 +42,7 @@ export const WidgetConfigPanel: React.FC = () => {
       config: {
         ...selectedWidget.config,
         symbols: symbols.split(',').map((s) => s.trim()),
-        chartInterval: selectedWidget.type === 'chart' ? chartInterval : undefined,
+        chartInterval: selectedWidget.type === 'chart' ? (chartInterval as any) : undefined,
       },
     });
     closeConfigPanel();

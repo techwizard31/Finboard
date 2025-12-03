@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+/* Custom theme variables */
 @theme {
   --color-primary: #3b82f6;
   --color-success: #10b981;
@@ -7,15 +8,7 @@
   --color-warning: #f59e0b;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
-}
+@variant dark (&:where(.dark, .dark *));
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -24,15 +17,28 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-gray-100 dark:bg-gray-800;
+  background-color: rgb(243 244 246);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background-color: rgb(31 41 55);
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  background-color: rgb(209 213 219);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: rgb(75 85 99);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-400 dark:bg-gray-500;
+  background-color: rgb(156 163 175);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(107 114 128);
 }
 
 /* React Grid Layout styles */

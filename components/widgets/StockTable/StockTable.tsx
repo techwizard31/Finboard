@@ -39,7 +39,7 @@ export const StockTable: React.FC<StockTableProps> = ({ widget }) => {
         onSearchChange={setSearchQuery}
       />
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-2">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800">

@@ -12,14 +12,14 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {label}
           </label>
         )}
         <select
           ref={ref}
           className={cn(
-            'w-full px-3 py-2 border rounded-lg transition-colors duration-200',
+            'w-full px-3 py-2 text-sm sm:text-base border rounded-lg transition-colors duration-200',
             'bg-white dark:bg-gray-800',
             'border-gray-300 dark:border-gray-700',
             'text-gray-900 dark:text-gray-100',

@@ -88,7 +88,7 @@ export const WidgetWrapper: React.FC<WidgetWrapperProps> = ({ widget }) => {
             </button>
           </div>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 cursor-move drag-handle">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 cursor-move drag-handle pl-2">
           Last updated: {formatters.time(new Date())}
         </div>
       </CardHeader>

@@ -42,15 +42,27 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string, options?: FetchOptions): Promise<T> {
-    const url = new URL(endpoint, this.baseUrl);
+    let url: string;
     
-    if (options?.params) {
-      Object.entries(options.params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
-      });
+    if (endpoint.startsWith('http')) {
+      // External URL
+      const urlObj = new URL(endpoint);
+      if (options?.params) {
+        Object.entries(options.params).forEach(([key, value]) => {
+          urlObj.searchParams.append(key, value);
+        });
+      }
+      url = urlObj.toString();
+    } else {
+      // Internal Next.js API route
+      url = endpoint;
+      if (options?.params) {
+        const params = new URLSearchParams(options.params);
+        url += `?${params.toString()}`;
+      }
     }
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const response = await this.fetchWithRetry(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -63,9 +75,17 @@ class ApiClient {
   }
 
   async post<T>(endpoint: string, data?: any, options?: FetchOptions): Promise<T> {
-    const url = new URL(endpoint, this.baseUrl);
+    let url: string;
+    
+    if (endpoint.startsWith('http')) {
+      // External URL
+      url = new URL(endpoint).toString();
+    } else {
+      // Internal Next.js API route
+      url = endpoint;
+    }
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const response = await this.fetchWithRetry(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

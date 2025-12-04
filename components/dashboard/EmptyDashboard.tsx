@@ -38,7 +38,7 @@ export const EmptyDashboard: React.FC<EmptyDashboardProps> = ({
         </Button>
 
         <div className="mt-8 sm:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 text-sm">
-          <div className="p-4 sm:p-5 md:p-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="p-4 sm:p-5 md:p-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               Stock Tables
             </div>
@@ -47,7 +47,7 @@ export const EmptyDashboard: React.FC<EmptyDashboardProps> = ({
             </div>
           </div>
           
-          <div className="p-4 sm:p-5 md:p-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="p-4 sm:p-5 md:p-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               Finance Cards
             </div>
@@ -56,7 +56,7 @@ export const EmptyDashboard: React.FC<EmptyDashboardProps> = ({
             </div>
           </div>
           
-          <div className="p-4 sm:p-5 md:p-6 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="p-4 sm:p-5 md:p-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm">
             <div className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
               Price Charts
             </div>

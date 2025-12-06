@@ -1,14 +1,12 @@
 @import "tailwindcss";
 
 /* Custom theme variables */
-@theme {
+:root {
   --color-primary: #3b82f6;
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
 }
-
-@variant dark (&:where(.dark, .dark *));
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
@@ -170,4 +168,31 @@
 .react-grid-item > .react-resizable-handle.react-resizable-handle-s {
   bottom: 0;
   transform: rotate(45deg);
+}
+
+@keyframes flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.flash-update {
+  animation: flash 0.5s ease-in-out;
+}
+
+/* Pulse animation for live indicator */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

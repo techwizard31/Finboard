@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { GripVertical, Settings, Trash2, RefreshCw } from 'lucide-react';
+import { GripVertical, Settings, Trash2, Radio } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { useWidgetStore } from '@/stores/widgetStore';
 import { Widget } from '@/types/widget.types';
@@ -21,15 +21,13 @@ interface WidgetWrapperProps {
 export const WidgetWrapper: React.FC<WidgetWrapperProps> = ({ widget }) => {
   const { removeWidget, selectWidget, openConfigPanel } = useWidgetStore();
 
-  const handleDelete = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleDelete = () => {
     if (confirm('Are you sure you want to delete this widget?')) {
       removeWidget(widget.id);
     }
   };
 
-  const handleConfig = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleConfig = () => {
     selectWidget(widget.id);
     openConfigPanel();
   };
@@ -61,38 +59,46 @@ export const WidgetWrapper: React.FC<WidgetWrapperProps> = ({ widget }) => {
     }
   };
 
+  const isRealtimeEnabled = widget.config?.useRealtime || false;
+
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="shrink-0">
+    <Card className="h-full overflow-hidden">
+      <CardHeader className="cursor-move drag-handle">
         <div className="flex items-center justify-between w-full">
-          <div className="flex items-center space-x-3 flex-1 cursor-move drag-handle">
-            <GripVertical className="w-4 h-4 text-gray-400 shrink-0" />
-            <CardTitle className="text-base truncate">{widget.title}</CardTitle>
+          <div className="flex items-center space-x-2 flex-1">
+            <GripVertical className="w-4 h-4 text-gray-400" />
+            <CardTitle className="text-base">{widget.title}</CardTitle>
+            {isRealtimeEnabled && (
+              <div className="flex items-center space-x-1 px-2 py-0.5 rounded-full bg-green-100 dark:bg-green-900/20 border border-green-300 dark:border-green-800">
+                <Radio className="w-3 h-3 text-green-600 dark:text-green-400 animate-pulse" />
+                <span className="text-xs font-medium text-green-700 dark:text-green-300">
+                  LIVE
+                </span>
+              </div>
+            )}
           </div>
-          <div className="flex items-center space-x-2 shrink-0">
+          <div className="flex items-center space-x-1">
             <button
-              type="button"
               onClick={handleConfig}
-              className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors cursor-pointer relative z-10"
+              className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               title="Settings"
             >
               <Settings className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>
             <button
-              type="button"
               onClick={handleDelete}
-              className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors cursor-pointer relative z-10"
+              className="p-1.5 rounded hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
               title="Delete"
             >
               <Trash2 className="w-4 h-4 text-red-500 dark:text-red-400" />
             </button>
           </div>
         </div>
-        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 cursor-move drag-handle pl-2">
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           Last updated: {formatters.time(new Date())}
         </div>
       </CardHeader>
-      <CardContent className="flex-1 overflow-auto">
+      <CardContent className="h-[calc(100%-80px)] overflow-auto">
         {renderWidgetContent()}
       </CardContent>
     </Card>

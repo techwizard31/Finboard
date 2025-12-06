@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## 🌐 Real-time Updates with WebSocket
 
-## Getting Started
+FinBoard now supports real-time stock price updates via WebSocket connections powered by Socket.IO and Finnhub.
 
-First, run the development server:
+### How It Works
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **WebSocket Server**: Next.js custom server with Socket.IO attached
+2. **Client Connection**: Automatic connection on page load
+3. **Symbol Subscription**: Widgets subscribe to specific stock symbols
+4. **Finnhub Integration**: Server connects to Finnhub WebSocket for real-time data
+5. **Live Updates**: Stock prices update instantly without polling
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Enabling Real-time Updates
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Make sure you have a valid **Finnhub API key** in `.env.local`
+2. When adding or configuring a widget, toggle "Enable Real-time Updates"
+3. Look for the 🔴 LIVE indicator on widgets with active WebSocket connections
+4. Real-time updates work for Card and Chart widgets (not Table widgets)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Features
 
-## Learn More
+- **Instant Updates**: Stock prices update in real-time (< 1 second latency)
+- **Visual Indicators**: Live badge and pulse animations
+- **Flash Effects**: Widgets flash when prices change
+- **Connection Status**: See WebSocket connection state in config panel
+- **Auto-reconnection**: Automatic reconnection on disconnect
+- **Fallback**: Falls back to polling if WebSocket unavailable
 
-To learn more about Next.js, take a look at the following resources:
+### Troubleshooting
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**WebSocket not connecting:**
+- Check that your Finnhub API key is valid
+- Ensure `FINNHUB_API_KEY` is set in `.env.local`
+- Restart the development server after adding the key
+- Check browser console for connection errors
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**No real-time updates:**
+- Verify the "Enable Real-time Updates" toggle is ON
+- Check that the LIVE indicator is showing on the widget
+- Ensure the stock symbol is valid and traded on US exchanges
+- Some stocks may have limited real-time data availability

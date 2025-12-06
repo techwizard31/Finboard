@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useWidgetStore } from '@/stores/widgetStore';
 import { generateId } from '@/lib/utils';
-import { Widget, WidgetType, CardType, ChartType, ChartInterval } from '@/types/widget.types';
+import { Widget, WidgetType, CardType, ChartType } from '@/types/widget.types';
 import {
   WIDGET_TYPES,
   CARD_TYPES,
@@ -16,6 +16,7 @@ import {
   CHART_INTERVALS,
 } from '@/constants/widgetTypes';
 import { API_PROVIDERS } from '@/constants/apiEndpoints';
+import { Radio } from 'lucide-react';
 
 interface AddWidgetModalProps {
   isOpen: boolean;
@@ -34,8 +35,9 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
   const [refreshInterval, setRefreshInterval] = useState(60000);
   const [cardType, setCardType] = useState<CardType>('watchlist');
   const [chartType, setChartType] = useState<ChartType>('line');
-  const [chartInterval, setChartInterval] = useState('5min');
+  const [chartInterval, setChartInterval] = useState<string>('5min');
   const [symbols, setSymbols] = useState('AAPL');
+  const [useRealtime, setUseRealtime] = useState(false);
 
   const resetForm = () => {
     setStep(1);
@@ -47,6 +49,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
     setChartType('line');
     setChartInterval('5min');
     setSymbols('AAPL');
+    setUseRealtime(false);
   };
 
   const handleClose = () => {
@@ -78,8 +81,9 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
       config: {
         cardType: widgetType === 'card' ? cardType : undefined,
         chartType: widgetType === 'chart' ? chartType : undefined,
-        chartInterval: widgetType === 'chart' ? (chartInterval as ChartInterval) : undefined,
+        chartInterval: widgetType === 'chart' ? (chartInterval as any) : undefined,
         symbols: symbols.split(',').map((s) => s.trim()),
+        useRealtime: widgetType !== 'table' ? useRealtime : false, // No realtime for tables
       },
     };
 
@@ -107,7 +111,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
           <button
             key={type.value}
             onClick={() => setWidgetType(type.value)}
-            className={`p-5 rounded-lg border-2 text-left transition-all ${
+            className={`p-4 rounded-lg border-2 text-left transition-all ${
               widgetType === type.value
                 ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
                 : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
@@ -137,14 +141,12 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
         onChange={(e) => setTitle(e.target.value)}
         placeholder={`My ${widgetType} Widget`}
       />
-
       <Select
         label="API Provider"
         value={apiProvider}
         onChange={(e) => setApiProvider(e.target.value)}
         options={API_PROVIDERS}
       />
-
       <Select
         label="Refresh Interval"
         value={refreshInterval.toString()}
@@ -154,7 +156,6 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
           label: interval.label,
         }))}
       />
-
       {widgetType === 'card' && (
         <Select
           label="Card Type"
@@ -163,7 +164,6 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
           options={CARD_TYPES}
         />
       )}
-
       {widgetType === 'chart' && (
         <>
           <Select
@@ -180,14 +180,36 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
           />
         </>
       )}
-
       <Input
         label="Stock Symbols"
         value={symbols}
         onChange={(e) => setSymbols(e.target.value)}
         placeholder="AAPL, GOOGL, MSFT"
-        helperText="Comma-separated symbols"
       />
+      {/* Real-time Toggle - Not for table widgets */}
+      {widgetType !== 'table' && (
+        <div className="p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <label className="flex items-center space-x-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={useRealtime}
+              onChange={(e) => setUseRealtime(e.target.checked)}
+              className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <span className="font-medium text-gray-900 dark:text-gray-100">
+                  Enable Real-time Updates
+                </span>
+                <Radio className="w-4 h-4 text-green-500" />
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Use WebSocket for instant price updates. Requires Finnhub API.
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
     </div>
   );
 
@@ -196,8 +218,8 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
         Review & Confirm
       </h3>
-      
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-5 space-y-3">
+
+      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
         <div className="flex justify-between">
           <span className="text-gray-600 dark:text-gray-400">Type:</span>
           <span className="font-medium text-gray-900 dark:text-gray-100">
@@ -228,19 +250,43 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
             {symbols}
           </span>
         </div>
+        {widgetType !== 'table' && (
+          <div className="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
+            <span className="text-gray-600 dark:text-gray-400">Real-time:</span>
+            <div className="flex items-center space-x-2">
+              {useRealtime && (
+                <Radio className="w-4 h-4 text-green-500 animate-pulse" />
+              )}
+              <span
+                className={`font-medium ${
+                  useRealtime
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-gray-500 dark:text-gray-500'
+                }`}
+              >
+                {useRealtime ? 'Enabled' : 'Disabled'}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Add New Widget" size="lg">
-      <div className="space-y-4 sm:space-y-6">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Add New Widget"
+      size="lg"
+    >
+      <div className="space-y-6">
         {/* Progress Steps */}
-        <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <div className="flex items-center justify-between mb-6">
           {[1, 2, 3].map((s) => (
             <div key={s} className="flex items-center flex-1">
               <div
-                className={`flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full text-sm sm:text-base ${
+                className={`flex items-center justify-center w-8 h-8 rounded-full ${
                   step >= s
                     ? 'bg-blue-600 text-white'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-500'
@@ -250,10 +296,8 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
               </div>
               {s < 3 && (
                 <div
-                  className={`flex-1 h-1 mx-1 sm:mx-2 ${
-                    step > s
-                      ? 'bg-blue-600'
-                      : 'bg-gray-200 dark:bg-gray-700'
+                  className={`flex-1 h-1 mx-2 ${
+                    step > s ? 'bg-blue-600' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                 />
               )}
@@ -267,11 +311,10 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
         {step === 3 && renderStep3()}
 
         {/* Actions */}
-        <div className="flex justify-between gap-2 sm:gap-3 pt-4 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex justify-between pt-4 border-t border-gray-200 dark:border-gray-800">
           <Button
             onClick={step === 1 ? handleClose : handleBack}
             variant="secondary"
-            className="text-sm sm:text-base px-4 sm:px-6"
           >
             {step === 1 ? 'Cancel' : 'Back'}
           </Button>
@@ -279,7 +322,6 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
             onClick={step === 3 ? handleSubmit : handleNext}
             variant="primary"
             disabled={step === 1 && !widgetType}
-            className="text-sm sm:text-base px-4 sm:px-6"
           >
             {step === 3 ? 'Add Widget' : 'Next'}
           </Button>

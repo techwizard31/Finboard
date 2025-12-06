@@ -23,6 +23,7 @@ export interface WidgetConfig {
   chartInterval?: ChartInterval;
   symbols?: string[];
   limit?: number;
+  useRealtime?: boolean;  
 }
 
 export interface LayoutItem {

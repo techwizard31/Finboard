@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import { Widget } from '@/types/widget.types';
 import { useStockQuote } from '@/hooks/useStockQuote';
+import { useRealtimeStock } from '@/hooks/useRealtimeStock';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { formatters } from '@/lib/formatters';
-import { ArrowUp, ArrowDown } from 'lucide-react';
+import { ArrowUp, ArrowDown, Radio } from 'lucide-react';
 import { TableFilters } from './TableFilters';
 import { TablePagination } from './TablePagination';
 
@@ -32,6 +33,8 @@ export const StockTable: React.FC<StockTableProps> = ({ widget }) => {
     startIndex + itemsPerPage
   );
 
+  const useRealtime = widget.config?.useRealtime || false;
+
   return (
     <div className="space-y-4">
       <TableFilters
@@ -39,7 +42,7 @@ export const StockTable: React.FC<StockTableProps> = ({ widget }) => {
         onSearchChange={setSearchQuery}
       />
 
-      <div className="overflow-x-auto -mx-2">
+      <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 dark:border-gray-800">
@@ -67,6 +70,7 @@ export const StockTable: React.FC<StockTableProps> = ({ widget }) => {
                 symbol={symbol}
                 provider={widget.apiProvider}
                 refreshInterval={widget.refreshInterval}
+                useRealtime={useRealtime}
               />
             ))}
           </tbody>
@@ -95,18 +99,46 @@ interface StockTableRowProps {
   symbol: string;
   provider: string;
   refreshInterval: number;
+  useRealtime: boolean;
 }
 
 const StockTableRow: React.FC<StockTableRowProps> = ({
   symbol,
   provider,
   refreshInterval,
+  useRealtime,
 }) => {
-  const { data, isLoading, error } = useStockQuote({
+  // Use realtime or polling based on config
+  const pollingData = useStockQuote({
     symbol,
     provider,
     refreshInterval,
+    enabled: !useRealtime,
   });
+
+  const realtimeData = useRealtimeStock({
+    symbol,
+    enabled: useRealtime,
+  });
+
+  const { data, isLoading, error } = useRealtime
+    ? { data: realtimeData.data ? { data: realtimeData.data, timestamp: new Date().toISOString() } : null, isLoading: !realtimeData.data && !realtimeData.error, error: realtimeData.error }
+    : { data: pollingData.data, isLoading: pollingData.isLoading, error: pollingData.error };
+
+  const [isFlashing, setIsFlashing] = React.useState(false);
+  const prevPriceRef = React.useRef<number | null>(null);
+
+  // Flash effect on price change
+  React.useEffect(() => {
+    if (data?.data.price && prevPriceRef.current !== null && prevPriceRef.current !== data.data.price) {
+      setIsFlashing(true);
+      const timer = setTimeout(() => setIsFlashing(false), 500);
+      return () => clearTimeout(timer);
+    }
+    if (data?.data.price) {
+      prevPriceRef.current = data.data.price;
+    }
+  }, [data?.data.price]);
 
   if (isLoading) {
     return (
@@ -132,9 +164,18 @@ const StockTableRow: React.FC<StockTableRowProps> = ({
   const isPositive = stock.change >= 0;
 
   return (
-    <tr className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+    <tr
+      className={`border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all ${
+        isFlashing ? 'bg-blue-100 dark:bg-blue-900/20' : ''
+      }`}
+    >
       <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
-        {stock.symbol}
+        <div className="flex items-center space-x-2">
+          {useRealtime && realtimeData.isSubscribed && (
+            <Radio className="w-3 h-3 text-green-500 animate-pulse" />
+          )}
+          <span>{stock.symbol}</span>
+        </div>
       </td>
       <td className="py-3 px-4 text-right font-mono text-gray-900 dark:text-gray-100">
         {formatters.currency(stock.price)}

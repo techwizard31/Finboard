@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Widget } from '@/types/widget.types';
 import { useHistoricalData } from '@/hooks/useHistoricalData';
+import { useRealtimeStock } from '@/hooks/useRealtimeStock';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ErrorState } from '@/components/ui/ErrorState';
 import {
@@ -17,6 +18,7 @@ import {
 } from 'recharts';
 import { formatters } from '@/lib/formatters';
 import { format } from 'date-fns';
+import { Radio } from 'lucide-react';
 
 interface LineChartProps {
   widget: Widget;
@@ -25,11 +27,54 @@ interface LineChartProps {
 export const LineChart: React.FC<LineChartProps> = ({ widget }) => {
   const symbol = widget.config?.symbols?.[0] || 'AAPL';
   const interval = widget.config?.chartInterval || '5min';
+  const useRealtime = widget.config?.useRealtime || false;
 
-  const { data, isLoading, error, refetch } = useHistoricalData({
+  const { data: historicalData, isLoading, error, refetch } = useHistoricalData({
     symbol,
     interval,
   });
+
+  const realtimeData = useRealtimeStock({
+    symbol,
+    enabled: useRealtime,
+  });
+
+  const [chartData, setChartData] = useState<any[]>([]);
+  const maxDataPoints = 100;
+
+  // Initialize chart with historical data
+  useEffect(() => {
+    if (historicalData?.data) {
+      const formattedData = historicalData.data.map((point) => ({
+        date: point.date,
+        price: point.close,
+        volume: point.volume,
+      }));
+      setChartData(formattedData);
+    }
+  }, [historicalData]);
+
+  // Append real-time data
+  useEffect(() => {
+    if (useRealtime && realtimeData.data && realtimeData.lastUpdate) {
+      setChartData((prev) => {
+        const newPoint = {
+          date: new Date().toISOString(),
+          price: realtimeData.data!.price,
+          volume: realtimeData.data!.volume || 0,
+        };
+
+        const updated = [...prev, newPoint];
+        
+        // Keep only last N points
+        if (updated.length > maxDataPoints) {
+          return updated.slice(-maxDataPoints);
+        }
+        
+        return updated;
+      });
+    }
+  }, [realtimeData.lastUpdate, realtimeData.data, useRealtime]);
 
   if (isLoading) {
     return (
@@ -39,26 +84,28 @@ export const LineChart: React.FC<LineChartProps> = ({ widget }) => {
     );
   }
 
-  if (error || !data) {
+  if (error || chartData.length === 0) {
     return <ErrorState error={error as Error} retry={refetch} />;
   }
-
-  const chartData = data.data.map((point) => ({
-    date: point.date,
-    price: point.close,
-    volume: point.volume,
-  }));
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            {symbol} - {interval}
+        <div className="flex items-center space-x-2">
+          <div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {symbol} - {interval}
+            </div>
+            <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              Price Chart
+            </div>
           </div>
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-            Price Chart
-          </div>
+          {useRealtime && realtimeData.isSubscribed && (
+            <div className="flex items-center space-x-1 px-2 py-1 rounded-full bg-green-100 dark:bg-green-900/20">
+              <Radio className="w-3 h-3 text-green-500 animate-pulse" />
+              <span className="text-xs text-green-700 dark:text-green-300">Live</span>
+            </div>
+          )}
         </div>
         {chartData.length > 0 && (
           <div className="text-right">
@@ -106,7 +153,7 @@ export const LineChart: React.FC<LineChartProps> = ({ widget }) => {
             }}
             labelFormatter={(date) => {
               try {
-                return format(new Date(date), 'MMM dd, yyyy HH:mm');
+                return format(new Date(date), 'MMM dd, yyyy HH:mm:ss');
               } catch {
                 return date;
               }
@@ -122,6 +169,8 @@ export const LineChart: React.FC<LineChartProps> = ({ widget }) => {
             dot={false}
             name="Price"
             activeDot={{ r: 6 }}
+            isAnimationActive={true}
+            animationDuration={300}
           />
         </RechartsLineChart>
       </ResponsiveContainer>

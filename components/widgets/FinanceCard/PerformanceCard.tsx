@@ -3,8 +3,10 @@
 import React from 'react';
 import { Widget } from '@/types/widget.types';
 import { useStockQuote } from '@/hooks/useStockQuote';
+import { useRealtimeStock } from '@/hooks/useRealtimeStock';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { formatters } from '@/lib/formatters';
+import { Radio } from 'lucide-react';
 
 interface PerformanceCardProps {
   widget: Widget;
@@ -12,11 +14,24 @@ interface PerformanceCardProps {
 
 export const PerformanceCard: React.FC<PerformanceCardProps> = ({ widget }) => {
   const symbol = widget.config?.symbols?.[0] || 'AAPL';
-  const { data, isLoading } = useStockQuote({
+  const useRealtime = widget.config?.useRealtime || false;
+
+  // Use realtime or polling based on config
+  const pollingData = useStockQuote({
     symbol,
     provider: widget.apiProvider,
     refreshInterval: widget.refreshInterval,
+    enabled: !useRealtime,
   });
+
+  const realtimeData = useRealtimeStock({
+    symbol,
+    enabled: useRealtime,
+  });
+
+  const { data, isLoading } = useRealtime
+    ? { data: realtimeData.data ? { data: realtimeData.data, timestamp: new Date().toISOString() } : null, isLoading: !realtimeData.data && !realtimeData.error }
+    : { data: pollingData.data, isLoading: pollingData.isLoading };
 
   if (isLoading || !data) {
     return (
@@ -40,8 +55,13 @@ export const PerformanceCard: React.FC<PerformanceCardProps> = ({ widget }) => {
   return (
     <div className="space-y-3">
       <div className="text-center py-4 bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/10 dark:to-purple-900/10 rounded-lg">
-        <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-          {stock.symbol}
+        <div className="flex items-center justify-center space-x-2 mb-1">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
+            {stock.symbol}
+          </span>
+          {useRealtime && realtimeData.isSubscribed && (
+            <Radio className="w-3 h-3 text-green-500 animate-pulse" />
+          )}
         </div>
         <div className="text-3xl font-bold text-gray-900 dark:text-gray-100 font-mono">
           {formatters.currency(stock.price)}

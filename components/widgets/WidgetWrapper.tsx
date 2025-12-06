@@ -77,7 +77,7 @@ export const WidgetWrapper: React.FC<WidgetWrapperProps> = ({ widget }) => {
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-1">
+          <div className="flex items-center space-x-1 no-drag">
             <button
               onClick={handleConfig}
               className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

@@ -35,7 +35,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
   const [refreshInterval, setRefreshInterval] = useState(60000);
   const [cardType, setCardType] = useState<CardType>('watchlist');
   const [chartType, setChartType] = useState<ChartType>('line');
-  const [chartInterval, setChartInterval] = useState<string>('5min');
+  const [chartInterval, setChartInterval] = useState<string>('daily');
   const [symbols, setSymbols] = useState('AAPL');
   const [useRealtime, setUseRealtime] = useState(false);
 
@@ -47,7 +47,7 @@ export const AddWidgetModal: React.FC<AddWidgetModalProps> = ({
     setRefreshInterval(60000);
     setCardType('watchlist');
     setChartType('line');
-    setChartInterval('5min');
+    setChartInterval('daily');
     setSymbols('AAPL');
     setUseRealtime(false);
   };

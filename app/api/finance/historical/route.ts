@@ -5,7 +5,7 @@ const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY || '';
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { symbol, interval = '5min' } = body;
+    const { symbol, interval = 'daily' } = body;
 
     if (!symbol) {
       return NextResponse.json(
@@ -14,22 +14,47 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Alpha Vantage free tier only supports daily, weekly, and monthly data
+    // Map intraday intervals to daily (since intraday requires premium)
     let url: string;
     let dataKey: string;
+    let mappedInterval = interval;
 
-    if (['daily', 'weekly', 'monthly'].includes(interval)) {
+    // Map intraday intervals to daily
+    if (['1min', '5min', '15min', '30min', '60min'].includes(interval)) {
+      mappedInterval = 'daily';
+      console.log(`⚠️  Interval '${interval}' requires premium. Using 'daily' instead.`);
+    }
+
+    if (mappedInterval === 'weekly') {
+      url = `https://www.alphavantage.co/query?function=TIME_SERIES_WEEKLY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+      dataKey = 'Weekly Time Series';
+    } else if (mappedInterval === 'monthly') {
+      url = `https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+      dataKey = 'Monthly Time Series';
+    } else {
+      // Default to daily - free tier compatible
       url = `https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=${symbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
       dataKey = 'Time Series (Daily)';
-    } else {
-      url = `https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=${symbol}&interval=${interval}&apikey=${ALPHA_VANTAGE_API_KEY}`;
-      dataKey = `Time Series (${interval})`;
     }
 
     const response = await fetch(url);
     const result = await response.json();
 
+    // Log the actual API response for debugging
+    console.log('Alpha Vantage Response:', JSON.stringify(result, null, 2));
+
     if (!result[dataKey]) {
-      throw new Error('Invalid response from API');
+      if (result['Error Message']) {
+        throw new Error(`Alpha Vantage Error: ${result['Error Message']}`);
+      }
+      if (result['Note']) {
+        throw new Error(`Alpha Vantage Rate Limit: ${result['Note']}`);
+      }
+      if (result['Information']) {
+        throw new Error(`Alpha Vantage Info: ${result['Information']}`);
+      }
+      throw new Error(`Invalid response from API: ${JSON.stringify(result)}`);
     }
 
     const timeSeries = result[dataKey];

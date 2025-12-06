@@ -40,12 +40,12 @@ export const REFRESH_INTERVALS = [
 ];
 
 export const CHART_INTERVALS = [
-  { value: '1min', label: '1 Minute' },
-  { value: '5min', label: '5 Minutes' },
-  { value: '15min', label: '15 Minutes' },
-  { value: '30min', label: '30 Minutes' },
-  { value: '60min', label: '1 Hour' },
   { value: 'daily', label: 'Daily' },
   { value: 'weekly', label: 'Weekly' },
   { value: 'monthly', label: 'Monthly' },
+  { value: '1min', label: '1 Minute (Premium Only)' },
+  { value: '5min', label: '5 Minutes (Premium Only)' },
+  { value: '15min', label: '15 Minutes (Premium Only)' },
+  { value: '30min', label: '30 Minutes (Premium Only)' },
+  { value: '60min', label: '1 Hour (Premium Only)' },
 ];

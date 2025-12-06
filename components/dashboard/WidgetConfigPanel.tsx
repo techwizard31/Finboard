@@ -26,7 +26,7 @@ export const WidgetConfigPanel: React.FC = () => {
   const [title, setTitle] = useState('');
   const [refreshInterval, setRefreshInterval] = useState(60000);
   const [symbols, setSymbols] = useState('');
-  const [chartInterval, setChartInterval] = useState('5min');
+  const [chartInterval, setChartInterval] = useState('daily');
   const [useRealtime, setUseRealtime] = useState(false);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const WidgetConfigPanel: React.FC = () => {
       setTitle(selectedWidget.title);
       setRefreshInterval(selectedWidget.refreshInterval);
       setSymbols(selectedWidget.config?.symbols?.join(', ') || '');
-      setChartInterval(selectedWidget.config?.chartInterval || '5min');
+      setChartInterval(selectedWidget.config?.chartInterval || 'daily');
       setUseRealtime(selectedWidget.config?.useRealtime || false);
     }
   }, [selectedWidget]);

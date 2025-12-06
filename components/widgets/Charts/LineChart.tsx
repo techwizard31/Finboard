@@ -26,7 +26,7 @@ interface LineChartProps {
 
 export const LineChart: React.FC<LineChartProps> = ({ widget }) => {
   const symbol = widget.config?.symbols?.[0] || 'AAPL';
-  const interval = widget.config?.chartInterval || '5min';
+  const interval = widget.config?.chartInterval || 'daily';
   const useRealtime = widget.config?.useRealtime || false;
 
   const { data: historicalData, isLoading, error, refetch } = useHistoricalData({

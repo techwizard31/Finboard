@@ -41,6 +41,7 @@ export const DashboardGrid: React.FC = () => {
       isResizable={true}
       onLayoutChange={handleLayoutChange}
       draggableHandle=".drag-handle"
+      draggableCancel="button,.no-drag"
       compactType="vertical"
     >
       {widgets.map((widget) => (

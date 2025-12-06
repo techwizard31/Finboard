@@ -10,7 +10,7 @@ interface UseHistoricalDataOptions {
 
 export function useHistoricalData({
   symbol,
-  interval = '5min',
+  interval = 'daily',
   enabled = true,
 }: UseHistoricalDataOptions) {
   return useQuery<{ data: HistoricalDataPoint[]; timestamp: string }>({

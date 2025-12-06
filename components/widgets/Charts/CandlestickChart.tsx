@@ -26,7 +26,7 @@ export const CandlestickChart: React.FC<CandlestickChartProps> = ({
   widget,
 }) => {
   const symbol = widget.config?.symbols?.[0] || 'AAPL';
-  const interval = widget.config?.chartInterval || '5min';
+  const interval = widget.config?.chartInterval || 'daily';
 
   const { data, isLoading, error, refetch } = useHistoricalData({
     symbol,

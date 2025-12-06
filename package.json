@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch server.ts",
     "build": "next build",
-    "start": "NODE_ENV=production node server.js",
+    "start": "NODE_ENV=production tsx server.ts",
     "build:server": "tsc server.ts --outDir ./ --module commonjs",
     "lint": "next lint"
   },
@@ -26,6 +26,7 @@
     "recharts": "^3.5.1",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "tsx": "^4.21.0",
     "ws": "^8.18.3",
     "zustand": "^5.0.9"
   },
@@ -39,7 +40,6 @@
     "eslint-config-next": "16.0.6",
     "nodemon": "^3.1.11",
     "tailwindcss": "^4.1.17",
-    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

@@ -1,8 +1,10 @@
 import { config } from 'dotenv';
 import { resolve } from 'path';
 
-// Load .env.local file
-config({ path: resolve(process.cwd(), '.env.local') });
+// Load .env.local file in development, Heroku uses Config Vars
+if (process.env.NODE_ENV !== 'production') {
+  config({ path: resolve(process.cwd(), '.env.local') });
+}
 
 import { createServer } from 'http';
 import next from 'next';
@@ -16,8 +18,8 @@ import {
 } from './types/socket.types.js';
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
-const port = 3000;
+const hostname = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+const port = parseInt(process.env.PORT || '3000', 10);
 
 // Create Next.js app
 const app = next({ dev, hostname, port });
@@ -343,8 +345,9 @@ async function startServer() {
     // Initialize Socket.IO
     const io = new SocketIOServer(httpServer, {
       cors: {
-        origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        origin: process.env.NEXT_PUBLIC_APP_URL || '*',
         methods: ['GET', 'POST'],
+        credentials: true,
       },
     }) as TypedServer;
 
@@ -352,8 +355,9 @@ async function startServer() {
     initializeSocketServer(io);
 
     // Start listening
-    httpServer.listen(port, () => {
+    httpServer.listen(port, hostname, () => {
       console.log(`🚀 Server ready on http://${hostname}:${port}`);
+      console.log(`   - Environment: ${dev ? 'Development' : 'Production'}`);
       console.log(`   - Next.js: Ready`);
       console.log(`   - Socket.IO: Ready`);
       console.log(`   - Finnhub API: ${FINNHUB_API_KEY ? 'Configured ✅' : 'Not configured ⚠️'}`);

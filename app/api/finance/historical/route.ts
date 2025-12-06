@@ -15,7 +15,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Alpha Vantage free tier only supports daily, weekly, and monthly data
-    // Map intraday intervals to daily (since intraday requires premium)
     let url: string;
     let dataKey: string;
     let mappedInterval = interval;

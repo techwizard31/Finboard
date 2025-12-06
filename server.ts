@@ -40,9 +40,8 @@ if (!FINNHUB_API_KEY) {
   console.error('⚠️  Real-time updates will not work. Please add FINNHUB_API_KEY to .env.local');
 }
 
-/**
- * Initialize Socket.IO server with event handlers
- */
+// Initialize Socket.IO server with event handlers
+
 export function initializeSocketServer(io: TypedServer) {
   console.log('🔌 Socket.IO server initialized');
 
@@ -97,9 +96,7 @@ export function initializeSocketServer(io: TypedServer) {
   });
 }
 
-/**
- * Handle client subscription to a stock symbol
- */
+// Handle client subscription to a stock symbol
 function handleSubscribe(socket: TypedSocket, symbol: string, io: TypedServer) {
   try {
     // Validate symbol
@@ -151,9 +148,8 @@ function handleSubscribe(socket: TypedSocket, symbol: string, io: TypedServer) {
   }
 }
 
-/**
- * Handle client unsubscription from a stock symbol
- */
+// Handle client unsubscription from a stock symbol
+
 function handleUnsubscribe(socket: TypedSocket, symbol: string, io: TypedServer) {
   try {
     const normalizedSymbol = symbol.toUpperCase();
@@ -184,18 +180,14 @@ function handleUnsubscribe(socket: TypedSocket, symbol: string, io: TypedServer)
   }
 }
 
-/**
- * Handle client disconnect - cleanup all subscriptions
- */
+// Handle client disconnect - cleanup all subscriptions
 function handleDisconnect(socket: TypedSocket, io: TypedServer) {
   socket.data.subscriptions.forEach((symbol) => {
     handleUnsubscribe(socket, symbol, io);
   });
 }
 
-/**
- * Connect to Finnhub WebSocket for a specific symbol
- */
+// Connect to Finnhub WebSocket for a specific symbol
 function connectToFinnhub(symbol: string, io: TypedServer) {
   try {
     if (!FINNHUB_API_KEY) {
@@ -312,9 +304,7 @@ function connectToFinnhub(symbol: string, io: TypedServer) {
   }
 }
 
-/**
- * Disconnect from Finnhub WebSocket for a specific symbol
- */
+// Disconnect from Finnhub WebSocket for a specific symbol
 function disconnectFromFinnhub(symbol: string) {
   const ws = finnhubConnections.get(symbol);
 

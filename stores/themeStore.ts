@@ -15,11 +15,16 @@ export const useThemeStore = create<ThemeStore>()(
       theme: 'light',
 
       toggleTheme: () =>
-        set((state) => ({
-          theme: state.theme === 'light' ? 'dark' : 'light',
-        })),
+        set((state) => {
+          const newTheme = state.theme === 'light' ? 'dark' : 'light';
+          console.log('Theme toggled from', state.theme, 'to', newTheme);
+          return { theme: newTheme };
+        }),
 
-      setTheme: (theme) => set({ theme }),
+      setTheme: (theme) => {
+        console.log('Theme set to:', theme);
+        set({ theme });
+      },
     }),
     {
       name: 'finboard-theme',

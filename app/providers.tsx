@@ -15,29 +15,43 @@ const queryClient = new QueryClient({
 });
 
 function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const theme = useThemeStore((state) => state.theme);
   const [mounted, setMounted] = useState(false);
+  const theme = useThemeStore((state) => state.theme);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (typeof window === 'undefined' || !mounted) return;
     
-    console.log('Applying theme to HTML element:', theme);
-    const root = window.document.documentElement;
+    const root = document.documentElement;
+    const body = document.body;
     
-    // Log before changes
-    console.log('HTML classes BEFORE:', root.className);
+    // Remove both classes first
+    root.classList.remove('light', 'dark');
     
-    root.classList.remove("light", "dark");
+    // Add the current theme
     root.classList.add(theme);
     
-    // Log after changes
-    console.log('HTML classes AFTER:', root.className);
-    console.log('Computed background color:', window.getComputedStyle(document.body).backgroundColor);
+    // Force apply styles directly to ensure they work
+    if (theme === 'dark') {
+      root.style.backgroundColor = '#111827';
+      root.style.color = '#f1f5f9';
+      body.style.backgroundColor = 'transparent';
+    } else {
+      root.style.backgroundColor = '#ffffff';
+      root.style.color = '#111827';
+      body.style.backgroundColor = 'transparent';
+    }
+    
+    console.log('Theme applied:', theme, 'HTML classes:', root.className);
   }, [theme, mounted]);
+
+  // Prevent flash by not rendering until mounted
+  if (!mounted) {
+    return <div style={{ visibility: 'hidden' }}>{children}</div>;
+  }
 
   return <>{children}</>;
 }

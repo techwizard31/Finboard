@@ -20,6 +20,27 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                const theme = localStorage.getItem('finboard-theme');
+                if (theme) {
+                  const { state } = JSON.parse(theme);
+                  if (state && state.theme) {
+                    document.documentElement.classList.add(state.theme);
+                  }
+                } else {
+                  document.documentElement.classList.add('light');
+                }
+              } catch (e) {
+                document.documentElement.classList.add('light');
+              }
+            `,
+          }}
+        />
+      </head>
       <body className={oxanium.className}>
         <Providers>{children}</Providers>
       </body>

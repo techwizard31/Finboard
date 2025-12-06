@@ -1,11 +1,36 @@
 @import "tailwindcss";
 
+/* Configure dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Custom theme variables */
 :root {
   --color-primary: #3b82f6;
   --color-success: #10b981;
   --color-danger: #ef4444;
   --color-warning: #f59e0b;
+}
+
+/* Force theme styles - applied directly without layer */
+html {
+  transition: background-color 200ms ease, color 200ms ease;
+  min-height: 100%;
+}
+
+html.light {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+html.dark {
+  background-color: #111827 !important;
+  color: #f1f5f9 !important;
+}
+
+body {
+  background-color: transparent !important;
+  min-height: 100vh;
+  color: inherit;
 }
 
 /* Custom scrollbar */
